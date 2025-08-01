@@ -1,9 +1,9 @@
 const data = {
-  "": {
-    "name": "??",
+  "liting": {
+    "name": "liting",
     "branches": {
-      "": {
-        "name": "??",
+      "seoul": {
+        "name": "seoul",
         "reports": {
           "2507": "https://docs.google.com/spreadsheets/d/14QC_YDaUaKWFMwLI1rqICkoLXQUGkMdsI534OhuHpdw/edit?gid=2139572918"
         },
