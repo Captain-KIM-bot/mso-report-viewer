@@ -1,1 +1,78 @@
-<!-- index.html placeholder -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>MSO 리포트</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>MSO 리포트 뷰어</h1>
+  <div class="selector">
+    <select id="hospital" onchange="onHospitalChange()"><option>병원 선택</option></select>
+    <select id="branch" onchange="onBranchChange()"><option>지점 선택</option></select>
+  </div>
+
+  <h2>📄 보고서</h2>
+  <div id="report-buttons" class="buttons"></div>
+
+  <h2>📁 추가자료</h2>
+  <select id="extra-report" onchange="onExtraChange()">
+    <option>추가자료 선택</option>
+  </select>
+
+  <iframe id="viewer" style="display:none;"></iframe>
+  <script src="data.js"></script>
+  <script>
+    const hSelect = document.getElementById("hospital"),
+          bSelect = document.getElementById("branch"),
+          btnArea = document.getElementById("report-buttons"),
+          extra = document.getElementById("extra-report"),
+          frame = document.getElementById("viewer");
+
+    function populateHospitals() {
+      Object.keys(data).forEach(h => {
+        const o = new Option(data[h].name, h);
+        hSelect.add(o);
+      });
+    }
+
+    function onHospitalChange() {
+      bSelect.innerHTML = "<option>지점 선택</option>";
+      btnArea.innerHTML = "";
+      extra.innerHTML = "<option>추가자료 선택</option>";
+      frame.style.display = "none";
+      const branchData = data[hSelect.value]?.branches || {};
+      Object.keys(branchData).forEach(b => {
+        bSelect.add(new Option(branchData[b].name, b));
+      });
+    }
+
+    function onBranchChange() {
+      btnArea.innerHTML = "";
+      extra.innerHTML = "<option>추가자료 선택</option>";
+      frame.style.display = "none";
+      const urlData = data[hSelect.value].branches[bSelect.value].reports || {};
+      Object.entries(urlData).forEach(([mo, url]) => {
+        const b = document.createElement("button");
+        b.textContent = mo;
+        b.onclick = () => load(url);
+        btnArea.append(b);
+        // 추가자료는 동일 URL 사용 가능
+        const opt = new Option(mo, url);
+        extra.add(opt);
+      });
+    }
+
+    function onExtraChange() {
+      load(extra.value);
+    }
+
+    function load(url) {
+      frame.src = url + "?widget=true&headers=false";
+      frame.style.display = "block";
+    }
+
+    window.onload = populateHospitals;
+  </script>
+</body>
+</html>
