@@ -4,25 +4,78 @@
   <meta charset="UTF-8">
   <title>MSO 리포트</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    #login {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 1000;
+    }
+    #login input {
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    #login button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+  </style>
 </head>
-<body>
-  <h1>MSO 리포트 뷰어</h1>
-  <div class="selector">
-    <select id="hospital" onchange="onHospitalChange()"><option>병원 선택</option></select>
-    <select id="branch" onchange="onBranchChange()"><option>지점 선택</option></select>
+<body style="display:none">
+
+  <!-- 로그인 화면 -->
+  <div id="login">
+    <h2>접속을 위해 비밀번호를 입력하세요</h2>
+    <input type="password" id="password" placeholder="비밀번호 입력">
+    <button onclick="checkPassword()">확인</button>
+    <p id="login-error" style="color:red; display:none;">❌ 비밀번호가 틀렸습니다</p>
   </div>
 
-  <h2>📄 보고서</h2>
-  <div id="report-buttons" class="buttons"></div>
+  <!-- 실제 본문 -->
+  <div id="main">
+    <h1>MSO 리포트 뷰어</h1>
+    <div class="selector">
+      <select id="hospital" onchange="onHospitalChange()"><option>병원 선택</option></select>
+      <select id="branch" onchange="onBranchChange()"><option>지점 선택</option></select>
+    </div>
 
-  <h2>📁 추가자료</h2>
-  <select id="extra-report" onchange="onExtraChange()">
-    <option>추가자료 선택</option>
-  </select>
+    <h2>📄 보고서</h2>
+    <div id="report-buttons" class="buttons"></div>
 
-  <iframe id="viewer" style="display:none;"></iframe>
+    <h2>📁 추가자료</h2>
+    <select id="extra-report" onchange="onExtraChange()">
+      <option>추가자료 선택</option>
+    </select>
+
+    <iframe id="viewer" style="display:none;"></iframe>
+  </div>
+
   <script src="data.js"></script>
   <script>
+    // 🔐 비밀번호 체크
+    const PASSWORD = "mso1234";  // 원하는 비밀번호로 바꾸세요
+
+    function checkPassword() {
+      const input = document.getElementById("password").value;
+      const error = document.getElementById("login-error");
+      if (input === PASSWORD) {
+        document.getElementById("login").style.display = "none";
+        document.body.style.display = "block";
+        populateHospitals();
+      } else {
+        error.style.display = "block";
+      }
+    }
+
+    // 🏥 병원 로딩 및 선택 처리
     const hSelect = document.getElementById("hospital"),
           bSelect = document.getElementById("branch"),
           btnArea = document.getElementById("report-buttons"),
@@ -51,28 +104,28 @@
       btnArea.innerHTML = "";
       extra.innerHTML = "<option>추가자료 선택</option>";
       frame.style.display = "none";
-      const urlData = data[hSelect.value].branches[bSelect.value].reports || {};
+      const branch = data[hSelect.value].branches[bSelect.value];
+      const urlData = branch.reports || {};
+      const extraData = branch.extras || {};
       Object.entries(urlData).forEach(([mo, url]) => {
         const b = document.createElement("button");
         b.textContent = mo;
         b.onclick = () => load(url);
         btnArea.append(b);
-        // 추가자료는 동일 URL 사용 가능
-        const opt = new Option(mo, url);
+
+        const opt = new Option(mo, extraData[mo] || "");
         extra.add(opt);
       });
     }
 
     function onExtraChange() {
-      load(extra.value);
+      if (extra.value) load(extra.value);
     }
 
     function load(url) {
       frame.src = url + "?widget=true&headers=false";
       frame.style.display = "block";
     }
-
-    window.onload = populateHospitals;
   </script>
 </body>
 </html>
