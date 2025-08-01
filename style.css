@@ -1,1 +1,28 @@
-/* style.css placeholder */
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: auto;
+  text-align: center;
+}
+.selector select {
+  margin: 10px;
+  padding: 8px;
+  font-size: 1rem;
+}
+.buttons button {
+  margin: 5px;
+  padding: 8px 16px;
+  font-size: 1rem;
+}
+iframe {
+  width: 100%;
+  height: 75vh;
+  border: none;
+  margin-top: 20px;
+}
+@media (min-width: 600px) {
+  .selector select, .buttons button {
+    display: inline-block;
+    width: auto;
+  }
+}
